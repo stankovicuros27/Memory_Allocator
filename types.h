@@ -2,14 +2,18 @@
 
 #include "slab.h"
 
-typedef struct Block {
-	int next_block;
-	char data[BLOCK_SIZE - sizeof(int)];
+#define block_offset_bit_cnt 12
+
+typedef union BuddyUnion {
+	union BuddyUnion* next;
+	char data[BLOCK_SIZE];
 } Block;
 
-typedef struct BuddiesData {
+typedef struct BuddiesManager {
+
 	int number_of_blocks;
-	void* starting_block;
-	int max_buddy_size;
-	int* available_buddies_index[64];
-} BuddiesData;
+	int largest_block_degree2;
+	Block* starting_block_adr;
+	Block* headers[64];
+
+} BuddiesManager;

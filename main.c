@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "test.h"
 #include "slab.h"
+#include "types.h"
 
 #define BLOCK_NUMBER (1000)
 #define THREAD_NUM (5)
@@ -13,8 +14,7 @@
 
 #define shared_size (7)
 
-
-void construct(void *data) {
+/*void construct(void *data) {
 	static int i = 1;
 	printf_s("%d Shared object constructed.\n", i++);
 	memset(data, MASK, shared_size);
@@ -84,4 +84,4 @@ int main() {
 	kmem_cache_destroy(shared);
 	free(space);
 	return 0;
-}
+}*/
