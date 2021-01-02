@@ -1,5 +1,5 @@
 ﻿  buddy.c
 C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\utils.h(22,18): warning C4018: '>': signed/unsigned mismatch
 C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\buddy.c(15,10): warning C4477: 'printf' : format string '%x' requires an argument of type 'unsigned int', but variadic argument 1 has type 'Block *'
-C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\buddy.c(84,1): warning C4047: 'initializing': 'unsigned int' differs in levels of indirection from 'Block *'
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\buddy.c(89,1): warning C4047: 'initializing': 'unsigned int' differs in levels of indirection from 'Block *'
   Memory_Allocator.vcxproj -> C:\Users\Uros\source\repos\Memory_Allocator\Debug\Memory_Allocator.exe

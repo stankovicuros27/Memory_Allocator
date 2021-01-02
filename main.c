@@ -6,7 +6,6 @@
 #include <assert.h>
 #include "test.h"
 #include "slab.h"
-#include "types.h"
 
 #define BLOCK_NUMBER (1000)
 #define THREAD_NUM (5)

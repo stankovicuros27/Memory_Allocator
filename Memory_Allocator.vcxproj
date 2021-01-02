@@ -141,7 +141,6 @@
     <ClInclude Include="buddy.h" />
     <ClInclude Include="slab.h" />
     <ClInclude Include="test.h" />
-    <ClInclude Include="types.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
