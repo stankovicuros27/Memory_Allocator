@@ -1,5 +1,11 @@
 #pragma once
 
+const char small_buffer_cache_name[] = "small_buffer_cache";
+const char cache_of_caches_name[] = "cache_of_caches";
+const int number_of_different_buffer_degs = 14;
+const int starting_buffer_deg = 5;
+const int bits_in_unsigned = sizeof(unsigned) * 8;
+
 unsigned int next_power_of_two(unsigned int n) {
     unsigned int p = 1;
     if (n && !(n & (n - 1))) {

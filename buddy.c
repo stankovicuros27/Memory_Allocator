@@ -1,13 +1,15 @@
 #pragma once
 
 #include "buddy.h"
-#include "slab.h"
-#include "utils.h"
-#include "types.h"
 #include <math.h>
 #include <stdio.h>
 
-BuddyManager* buddy_manager = NULL;
+static BuddyManager* buddy_manager = NULL;
+
+
+BuddyManager* get_buddy_manager() {
+	return buddy_manager;
+}
 
 
 void print_buddy_list(Block* head) {
@@ -28,7 +30,7 @@ void print_buddy_manager() {
 	printf("Starting block address: %x\n", (unsigned)buddy_manager->starting_block_adr);
 	printf("Headers:\n\n");
 	for (int index = 0; index <= buddy_manager->largest_block_degree2; index++) {
-		printf("[%03d]: ", (int)pow(2,index));
+		printf("[%03d]: ", (int)pow(2, index));
 		print_buddy_list(buddy_manager->headers[index]);
 	}
 }
@@ -45,6 +47,9 @@ int find_minimum_sized_buddy(int minimum_index) {
 
 
 Block* get_buddy(int size) {
+
+	WaitForSingleObject(buddy_manager->dhMutex, INFINITE);
+
 	if (size == 0) {
 		printf("\nSize cannot be 0!\n");
 		return NULL;
@@ -75,6 +80,8 @@ Block* get_buddy(int size) {
 		to_take = right_half;
 	}
 
+	ReleaseMutex(buddy_manager->dhMutex);
+
 	return to_take;
 }
 
@@ -102,6 +109,8 @@ Block* get_potential_buddy_of(Block* block, int size_of_block) {
 
 void put_buddy(Block* block, int size_of_block) {
 
+	WaitForSingleObject(buddy_manager->dhMutex, INFINITE);
+
 	int index = (int)log2(next_power_of_two(size_of_block));
 	Block* buddy = get_potential_buddy_of(block, size_of_block);
 
@@ -120,14 +129,16 @@ void put_buddy(Block* block, int size_of_block) {
 
 			if (!prev) {
 				buddy_manager->headers[index] = iterator->next;
-			} else {
+			}
+			else {
 				prev->next = iterator->next;
 			}
 
 			Block* to_insert;
 			if ((unsigned)block < (unsigned)buddy) {
 				to_insert = block;
-			} else {
+			}
+			else {
 				to_insert = buddy;
 			}
 
@@ -140,17 +151,19 @@ void put_buddy(Block* block, int size_of_block) {
 
 	block->next = buddy_manager->headers[index];
 	buddy_manager->headers[index] = block;
+
+	ReleaseMutex(buddy_manager->dhMutex);
 }
 
 
-void kmem_init(void* space, int block_num) {
+void init_buddy_manager(void* space, int block_num) {
 
 	if (block_num < 2) {
 		printf("\nNot enough memory!\n");
 		exit(-1);
 	}
 
-	Block* first_block = (Block*)space;	
+	Block* first_block = (Block*)space;
 	buddy_manager = (BuddyManager*)space;
 	first_block++;
 	block_num--;
@@ -167,10 +180,12 @@ void kmem_init(void* space, int block_num) {
 		Block* block_to_add = buddy_manager->starting_block_adr + i;
 		put_buddy(block_to_add, 1);
 	}
+
+	buddy_manager->dhMutex = CreateMutex(NULL, FALSE, NULL);
 }
 
 
-typedef struct Node {
+/*typedef struct Node {
 	struct Node* next;
 	Block* block;
 	int memory;
@@ -179,19 +194,17 @@ typedef struct Node {
 
 int main() {
 
+	printf("%d", sizeof(unsigned));
+
 	for (int i = 0; i < 10; i++) {
 		int size = rand() % 2000;
-
-
 		void* space = malloc(BLOCK_SIZE * size);
 		kmem_init(space, size);
 		print_buddy_manager();
-
 		Node* head = NULL;
 		int taken_mem = 0;
 		int cnt_wrong = 0;
-		int cnt = 10000;
-
+		int cnt = 100;
 		while (1) {
 			//getchar();
 			int first_block_size = rand() % (int)pow(2, buddy_manager->largest_block_degree2) / 2;
@@ -208,17 +221,14 @@ int main() {
 				cnt_wrong = 0;
 				printf("Allocated new buddy block with size %d blocks", first_block_size);
 			}
-
 			if (!cnt_wrong) {
 				taken_mem += first_block_size;
 				Node* p = malloc(sizeof(Node));
 				p->block = first_block;
 				p->memory = first_block_size;
-
 				p->next = head;
 				head = p;
 			}
-
 			if (cnt_wrong >= 5) {
 				while (head != NULL) {
 					Node* to_free = head;
@@ -229,10 +239,9 @@ int main() {
 					free(to_free);
 				}
 			}
-
 			printf("\n\n%d", cnt);
 			if (cnt-- == 0) break;
 			print_buddy_manager();
 		}
 	}
-}
+}*/
