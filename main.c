@@ -1,28 +1,27 @@
-#pragma once
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "test.h"
 #include "slab.h"
+#include "test.h"
 
 #define BLOCK_NUMBER (1000)
-#define THREAD_NUM (1)
+#define THREAD_NUM (5)
 #define ITERATIONS (1000)
 
 #define shared_size (7)
 
-void construct(void *data) {
+
+void construct(void* data) {
 	static int i = 1;
 	printf_s("%d Shared object constructed.\n", i++);
 	memset(data, MASK, shared_size);
 }
 
-int check(void *data, size_t size) {
+int check(void* data, size_t size) {
 	int ret = 1;
 	for (int i = 0; i < size; i++) {
-		if (((unsigned char *)data)[i] != MASK) {
+		if (((unsigned char*)data)[i] != MASK) {
 			ret = 0;
 		}
 	}
@@ -31,8 +30,8 @@ int check(void *data, size_t size) {
 }
 
 struct objects_s {
-	kmem_cache_t *cache;
-	void *data;
+	kmem_cache_t* cache;
+	void* data;
 };
 
 void work(void* pdata) {
@@ -40,9 +39,9 @@ void work(void* pdata) {
 	char buffer[1024];
 	int size = 0;
 	sprintf_s(buffer, 1024, "thread cache %d", data.id);
-	kmem_cache_t *cache = kmem_cache_create(buffer, data.id, 0, 0);
+	kmem_cache_t* cache = kmem_cache_create(buffer, data.id, 0, 0);
 
-	struct objects_s *objs = (struct objects_s*)(kmalloc(sizeof(struct objects_s) * data.iterations));
+	struct objects_s* objs = (struct objects_s*)(kmalloc(sizeof(struct objects_s) * data.iterations));
 
 	for (int i = 0; i < data.iterations; i++) {
 		if (i % 100 == 0) {
@@ -71,9 +70,9 @@ void work(void* pdata) {
 }
 
 int main() {
-	void *space = malloc(BLOCK_SIZE * BLOCK_NUMBER);
+	void* space = malloc(BLOCK_SIZE * BLOCK_NUMBER);
 	kmem_init(space, BLOCK_NUMBER);
-	kmem_cache_t *shared = kmem_cache_create("shared object", shared_size, construct, NULL);
+	kmem_cache_t* shared = kmem_cache_create("shared object", shared_size, construct, NULL);
 
 	struct data_s data;
 	data.shared = shared;
