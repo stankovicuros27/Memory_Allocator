@@ -8,6 +8,7 @@
 #include <Windows.h>
 
 #define _CRT_SECURE_NO_WARNINGS
+#define L1_CACHE_ALIGNMENT 0
 
 void get_slab(kmem_cache_t* cachep);
 void kmem_init(void* space, int block_num);
@@ -45,6 +46,8 @@ typedef struct kmem_cache_s {
 	int object_size_in_bytes;
 	int slab_size_in_blocks;
 	int bitvector_size_in_unsigned;
+
+	int unused_space_in_bytes;
 
 	SlabMetaData* empty_slabs;
 	SlabMetaData* mixed_slabs;
@@ -87,6 +90,9 @@ void initialize_cache_of_caches() {
 	cache_of_caches->ctor = cache_of_caches->dtor = NULL;
 	cache_of_caches->empty_slabs = cache_of_caches->full_slabs = cache_of_caches->mixed_slabs = NULL;
 	cache_of_caches->mutex = CreateMutex(NULL, FALSE, NULL);
+
+	cache_of_caches->unused_space_in_bytes = 
+		(cache_of_caches->slab_size_in_blocks * BLOCK_SIZE - sizeof(SlabMetaData) - cache_of_caches->bitvector_size_in_unsigned * sizeof(unsigned)) % sizeof(kmem_cache_t);
 }
 
 void initialize_small_buffer_caches() {
@@ -114,6 +120,9 @@ void initialize_small_buffer_caches() {
 		current_cache->ctor = current_cache->dtor = NULL;
 		current_cache->empty_slabs = current_cache->full_slabs = current_cache->mixed_slabs = NULL;
 		current_cache->mutex = CreateMutex(NULL, FALSE, NULL);
+
+		current_cache->unused_space_in_bytes =
+			(current_cache->slab_size_in_blocks * BLOCK_SIZE - sizeof(SlabMetaData) - current_cache->bitvector_size_in_unsigned * sizeof(unsigned)) % current_cache->object_size_in_bytes;
 	}
 }
 
@@ -163,6 +172,9 @@ kmem_cache_t* kmem_cache_create(const char* name, size_t size, void(*ctor)(void*
 
 	created_cache->num_of_objects_in_slab =
 		(created_cache->slab_size_in_blocks * BLOCK_SIZE - sizeof(SlabMetaData) - sizeof(unsigned) * created_cache->bitvector_size_in_unsigned) / created_cache->object_size_in_bytes;
+
+	created_cache->unused_space_in_bytes =
+		(created_cache->slab_size_in_blocks * BLOCK_SIZE - sizeof(SlabMetaData) - created_cache->bitvector_size_in_unsigned * sizeof(unsigned)) % created_cache->object_size_in_bytes;
 
 	created_cache->mutex = CreateMutex(NULL, FALSE, NULL);
 
@@ -249,7 +261,15 @@ void get_slab(kmem_cache_t* cachep) {
 	}
 
 	unsigned* starting_slot = slab->bitvector_start + cachep->bitvector_size_in_unsigned;
-	slab->starting_slot = (void*)starting_slot;
+
+	if (L1_CACHE_ALIGNMENT && (cachep->unused_space_in_bytes / CACHE_L1_LINE_SIZE)) {
+		unsigned cache_offset = rand() % (cachep->unused_space_in_bytes / CACHE_L1_LINE_SIZE);
+		unsigned starting_slot_with_l1_offset = ((unsigned)starting_slot + cache_offset * CACHE_L1_LINE_SIZE);
+		slab->starting_slot = (void*)starting_slot_with_l1_offset;
+	}
+	else {
+		slab->starting_slot = (void*)starting_slot;
+	}
 
 	slab->next = cachep->empty_slabs;
 	cachep->empty_slabs = slab;
@@ -534,8 +554,8 @@ void kmem_cache_info(kmem_cache_t* cachep) {
 
 	printf("\n\Cache name -> %s\n", cachep->name);
 	printf("Object size in bytes -> %d\n", cachep->object_size_in_bytes);
-	printf("Max num of objects in slab -> %d\n", cachep->num_of_objects_in_slab);
 	printf("Slab size in Blocks -> %d\n", cachep->slab_size_in_blocks);
+	printf("Max num of objects in slab -> %d\n", cachep->num_of_objects_in_slab);
 
 	int empty_slabs = 0;
 	int full_slabs = 0;
@@ -568,8 +588,14 @@ void kmem_cache_info(kmem_cache_t* cachep) {
 	printf("Full slabs number -> %d\n", full_slabs);
 	printf("Mixed slabs number -> %d\n", mixed_slabs);
 	printf("Free space left -> %d\n", free_space);
-	printf("Total objects created -> %d\n", (empty_slabs + full_slabs + mixed_slabs) * cachep->num_of_objects_in_slab - free_space);
-
+	int taken_space = (empty_slabs + full_slabs + mixed_slabs) * cachep->num_of_objects_in_slab - free_space;
+	printf("Total objects created -> %d\n", taken_space);
+	printf("Percentage of space used -> %lf\n", (double)taken_space / (double)(taken_space + free_space) * 100);
+	printf("Unused space inside slab -> %d\n", cachep->unused_space_in_bytes);
+	if (L1_CACHE_ALIGNMENT) {
+		printf("Different L1_Cache alignments -> %d\n", (cachep->unused_space_in_bytes / CACHE_L1_LINE_SIZE));
+	}
+	printf("\n");
 	ReleaseMutex(slab_manager->mutex);
 }
 

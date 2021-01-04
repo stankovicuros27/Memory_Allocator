@@ -1,3 +1,15 @@
-﻿  main.c
-C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\main.c(22,20): warning C4018: '<': signed/unsigned mismatch
+﻿  slab.c
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\utils.h(28,18): warning C4018: '>': signed/unsigned mismatch
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(10,1): warning C4005: '_CRT_SECURE_NO_WARNINGS': macro redefinition
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c : message : see previous definition of '_CRT_SECURE_NO_WARNINGS'
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(106,50): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(100,1): warning C4047: 'initializing': 'kmem_cache_t *' differs in levels of indirection from 'kmem_cache_t (*)[14]'
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(211,43): warning C4013: 'get_free_index_bitvector' undefined; assuming extern returning int
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(220,1): warning C4244: 'initializing': conversion from 'double' to 'unsigned int', possible loss of data
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(247,26): warning C4013: 'get_buddy' undefined; assuming extern returning int
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(247,1): warning C4047: 'initializing': 'Block *' differs in levels of indirection from 'int'
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(376,1): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(421,58): warning C4090: 'function': different 'const' qualifiers
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(487,1): warning C4244: 'initializing': conversion from 'double' to 'char', possible loss of data
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\slab.c(555,9): warning C4129: 'C': unrecognized character escape sequence
   Memory_Allocator.vcxproj -> C:\Users\Uros\source\repos\Memory_Allocator\Debug\Memory_Allocator.exe

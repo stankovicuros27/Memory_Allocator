@@ -6,7 +6,7 @@
 #include "test.h"
 
 #define BLOCK_NUMBER (1000)
-#define THREAD_NUM (10)
+#define THREAD_NUM (5)
 #define ITERATIONS (1000)
 
 #define shared_size (7)
@@ -38,7 +38,7 @@ void work(void* pdata) {
 	char buffer[1024];
 	int size = 0;
 	sprintf_s(buffer, 1024, "thread cache %d", data.id);
-	kmem_cache_t* cache = kmem_cache_create(buffer, data.id, 0, 0);
+	kmem_cache_t* cache = kmem_cache_create(buffer, data.id * 500, 0, 0);
 
 	struct objects_s* objs = (struct objects_s*)(kmalloc(sizeof(struct objects_s) * data.iterations));
 
