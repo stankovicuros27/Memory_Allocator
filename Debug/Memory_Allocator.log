@@ -1,3 +1,3 @@
 ﻿  main.c
-C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\main.c(23,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Uros\source\repos\Memory_Allocator\Memory_Allocator\main.c(22,20): warning C4018: '<': signed/unsigned mismatch
   Memory_Allocator.vcxproj -> C:\Users\Uros\source\repos\Memory_Allocator\Debug\Memory_Allocator.exe

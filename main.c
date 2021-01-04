@@ -6,11 +6,10 @@
 #include "test.h"
 
 #define BLOCK_NUMBER (1000)
-#define THREAD_NUM (5)
+#define THREAD_NUM (10)
 #define ITERATIONS (1000)
 
 #define shared_size (7)
-
 
 void construct(void* data) {
 	static int i = 1;
@@ -70,6 +69,7 @@ void work(void* pdata) {
 }
 
 int main() {
+
 	void* space = malloc(BLOCK_SIZE * BLOCK_NUMBER);
 	kmem_init(space, BLOCK_NUMBER);
 	kmem_cache_t* shared = kmem_cache_create("shared object", shared_size, construct, NULL);
