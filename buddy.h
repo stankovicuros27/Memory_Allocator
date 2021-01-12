@@ -5,7 +5,6 @@
 
 #define block_offset_bit_cnt 12
 
-
 typedef union BuddyUnion {
 	union BuddyUnion* next;
 	char data[BLOCK_SIZE];

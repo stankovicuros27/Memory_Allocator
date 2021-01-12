@@ -52,6 +52,7 @@ Block* get_buddy(int size) {
 
 	if (size == 0) {
 		printf("\nSize cannot be 0!\n");
+		ReleaseMutex(buddy_manager->dhMutex);
 		return NULL;
 	}
 
@@ -60,6 +61,7 @@ Block* get_buddy(int size) {
 
 	if (block_to_take_index == -1) {
 		//printf("Not enough memory to allocate buddy with size %d\n", size);
+		ReleaseMutex(buddy_manager->dhMutex);
 		return NULL;		//not enough memory
 	}
 
@@ -81,7 +83,6 @@ Block* get_buddy(int size) {
 	}
 
 	ReleaseMutex(buddy_manager->dhMutex);
-
 	return to_take;
 }
 
@@ -121,6 +122,7 @@ void put_buddy(Block* block, int size_of_block) {
 	if (!iterator) {
 		block->next = NULL;
 		buddy_manager->headers[index] = block;
+		ReleaseMutex(buddy_manager->dhMutex);
 		return;
 	}
 
@@ -143,6 +145,7 @@ void put_buddy(Block* block, int size_of_block) {
 			}
 
 			put_buddy(to_insert, 2 * size_of_block);
+			ReleaseMutex(buddy_manager->dhMutex);
 			return;
 		}
 		prev = iterator;

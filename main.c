@@ -5,9 +5,9 @@
 #include "slab.h"
 #include "test.h"
 
-#define BLOCK_NUMBER (1000)
-#define THREAD_NUM (5)
-#define ITERATIONS (1000)
+#define BLOCK_NUMBER (200000)
+#define THREAD_NUM (100)
+#define ITERATIONS (15000)
 
 #define shared_size (7)
 
@@ -24,7 +24,6 @@ int check(void* data, size_t size) {
 			ret = 0;
 		}
 	}
-
 	return ret;
 }
 
@@ -38,7 +37,7 @@ void work(void* pdata) {
 	char buffer[1024];
 	int size = 0;
 	sprintf_s(buffer, 1024, "thread cache %d", data.id);
-	kmem_cache_t* cache = kmem_cache_create(buffer, data.id * 500, 0, 0);
+	kmem_cache_t* cache = kmem_cache_create(buffer, data.id, 0, 0);
 
 	struct objects_s* objs = (struct objects_s*)(kmalloc(sizeof(struct objects_s) * data.iterations));
 
@@ -81,5 +80,6 @@ int main() {
 
 	kmem_cache_destroy(shared);
 	free(space);
+
 	return 0;
 }
